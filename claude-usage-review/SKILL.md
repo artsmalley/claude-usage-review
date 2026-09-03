@@ -88,11 +88,18 @@ never shows up in transcripts directly.
     once doesn't count; a page people return to, a bot they message, a tool in someone's
     routine does.)
 
-Question 8 is the strongest lie detector for inflated answers to 6–7: "I built an app"
-with no git, no repo, and no deploy target usually means "Claude made me an HTML file."
-No toolchain caps output-shipped around 5–6 regardless of what the person calls their work.
+Question 8 is a lie detector for inflated answers to 6–7: "I built an app" with no git,
+no repo, and no deploy target usually means "Claude made me an HTML file." But the
+toolchain is a PROXY for shipping, not the thing itself — and verified dependence (Q10)
+is the thing itself, so it overrides. Someone who built a tool dozens of colleagues now
+rely on, and had IT put it on a company server, shipped for real: in a large company,
+IT-as-deployment-department is a normal route, not a gap. Score their output-shipped on
+the dependence evidence and note the toolchain as a growth edge, not a cap. The cap
+(output-shipped ~5–6) applies only when BOTH are absent: no toolchain AND no verifiable
+"who uses it, how often" answer.
 Question 10 uses the same defense as 7: recurrence and dependence, not a one-time handoff.
-"Yes" without a who/how-often answer gets discounted.
+"Yes" without a who/how-often answer gets discounted; "yes" WITH names, frequency, and a
+tool that would be missed tomorrow counts fully — regardless of who runs the server.
 
 ## The scale
 
