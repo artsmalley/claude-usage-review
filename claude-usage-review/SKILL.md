@@ -48,11 +48,42 @@ jq -r '[.projects[]?.mcpServers // {} | keys[]] | unique[]' ~/.claude.json 2>/de
 find ~ -maxdepth 4 -name "CLAUDE.md" 2>/dev/null | head -20    # project context files
 crontab -l 2>/dev/null; systemctl --user list-timers 2>/dev/null | head  # automation
 
+# Customization inventory (has the person modified the tool itself?)
+jq 'keys' ~/.claude/settings.json 2>/dev/null                  # what's configured at all
+jq '.permissions | {allow: (.allow|length), ask: (.ask|length), deny: (.deny|length)}' \
+  ~/.claude/settings.json 2>/dev/null                          # tuned permission lists
+ls ~/.claude/commands/ ~/.claude/agents/ ~/.claude/output-styles/ 2>/dev/null  # commands/agents/styles
+ls ~/.claude/keybindings.json ~/.claude/plugins 2>/dev/null    # keybindings, plugins
+find ~ -maxdepth 4 \( -path "*/.claude/settings.json" -o -path "*/.claude/settings.local.json" \
+  -o -path "*/.claude/commands" -o -name ".mcp.json" \) 2>/dev/null | head -20  # per-project tuning
+ls ~/.claude/projects/*/memory/MEMORY.md 2>/dev/null | head    # auto-memory in use
+```
+
+Interpret the inventory: a fat, curated permissions allow/ask list is one of the strongest
+"modifies the tool" signals — it means the person hit friction and engineered it away.
+Per-project settings and commands beat a single global config (they tune per context).
+Stock settings.json with only defaults = the tool was installed, not adopted.
+
+```bash
+# Modification over time (practice vs possession)
+find ~/.claude/skills ~/.claude/commands ~/.claude/agents -name "*.md" \
+  -printf '%TY-%Tm-%Td %s %p\n' 2>/dev/null | sort              # mtime + size per artifact
+find ~ -maxdepth 4 -name "CLAUDE.md" -printf '%TY-%Tm-%Td %p\n' 2>/dev/null | sort | head -20
+stat -c '%y %n' ~/.claude/settings.json ~/.claude/keybindings.json 2>/dev/null
+# If a config/skill lives in a git repo, history is the best evidence — iteration count + cadence:
+git -C <repo> log --oneline --follow -- CLAUDE.md .claude/ | head -20
+
 # Shipped-code signals (code vs documents-only; real tools vs one-shot artifacts)
 find ~/projects ~/code ~/dev -maxdepth 2 -name ".git" -type d 2>/dev/null | wc -l   # real repos
 find ~/projects -maxdepth 2 \( -name "vercel.json" -o -name "Dockerfile" -o -name "fly.toml" -o -name "railway.json" \) 2>/dev/null  # deploy configs
 git -C <their-main-repo> log --oneline --grep="Co-Authored-By: Claude" | wc -l       # Claude-coauthored commits
 ```
+
+Interpret modification over time: this is the discriminator for the 7–8 band. Environment
+building is a practice, not an inventory — mtimes and git history observe practice.
+A CLAUDE.md or skill revised across weeks beats ten stubs created in one sitting; clustered
+identical mtimes = one setup afternoon (often from a blog post), spread mtimes = ongoing
+improvement cycles. Recent mtimes on config files mean the tuning is alive, not abandoned.
 
 Interpret the tool mix: heavy `Edit`/`Write`/`Bash` = real delegation; `Task`/`Agent` =
 subagent orchestration; `Skill` = uses packaged workflows; `mcp__*` = integrated external
@@ -66,7 +97,7 @@ never shows up in transcripts directly.
 2. When Claude gives you something, what happens next — do you paste it somewhere by hand,
    or does Claude put it where it belongs itself?
 3. Do you have any standing setup — project instructions, a CLAUDE.md, custom skills,
-   connected tools (email, calendar, files)?
+   connected tools (email, calendar, files, Slack, Jira, Asana)?
 4. Has Claude ever done a multi-step task end-to-end for you (research → write → file/send)?
 5. Has Claude ever worked while you weren't watching — scheduled, background, overnight?
 6. What comes out of your Claude work — documents and analyses, working code, or running
@@ -113,8 +144,13 @@ environment") rather than the roll-up alone.
   tuning, memory. How much have they built so Claude works better *for them specifically*?
 - **Autonomy granted** — does Claude only act while watched, or run background tasks,
   scheduled jobs, agents that operate unattended?
-- **Output shipped** — has the work left the machine? Published articles, deployed apps,
-  running bots, tools other people use.
+- **Output shipped** — has the work left the machine, and does anything *depend* on it?
+  Weighted by stakes and post-launch iteration, not artifact count: a deploy config and a
+  live URL are possession signals; a repo whose feature commits continue for months after
+  launch is an operation. Claude writing into shared team systems — posting the Slack
+  summary, updating Jira tickets others act on — counts as intermediate shipping: more
+  than on-machine, less than an operated product. For enterprise users who can't deploy,
+  it's the main road from 6 toward 8.
 
 Roll-up anchors (observable behavior, not vibes):
 
@@ -122,17 +158,39 @@ Roll-up anchors (observable behavior, not vibes):
 |---|---|
 | **1–2 · Search substitute** | Asks questions, reads answers. Nothing persists between sessions. AI = better Google. |
 | **3–4 · Copy-paste assistant** | Gets drafts, code snippets, emails; carries them to their destination by hand. Redoes rather than steers when output is wrong. |
-| **5–6 · Real delegator** | Hands over multi-step tasks end-to-end. Has project context set up. Iterates with the agent. Connected at least one real system (files, email, repo). |
-| **7–8 · Environment builder** | Custom skills/hooks/MCP/automation. Subagents or scheduled runs. Claude sometimes works unattended. Their setup would take a newcomer weeks to replicate. |
-| **9–10 · Software producer** | AI is the primary production method. Ships software, agents, or a content operation built and run this way. Orchestrates multiple agents/sessions routinely. |
+| **5–6 · Real delegator** | Hands over multi-step tasks end-to-end. Has project context set up. Iterates with the agent. Connected at least one real system — files, email, repo, or a work tool (Slack, Jira, Asana, Teams, Notion). |
+| **7–8 · Environment builder** | Custom skills/hooks/MCP/automation. Subagents or scheduled runs. Claude sometimes works unattended. Their setup would take a newcomer weeks to replicate. An 8 also has at least one thing off the machine that someone else has actually used; a purely self-serving environment, however deep, stays 7. |
+| **9 · Operator** | Runs something with real stakes — external users, a production workload, or a paying/returning audience — with a live agentic improvement loop: feedback or usage data flows in, agent-built updates ship on a visible cadence. Someone or something would be hurt by an outage. |
+| **10 · Production at scale** | Multiple such operations, or one that strangers depend on routinely. Reliability work (monitoring, recovery) exists because it has to. AI is the production method of a real operation, not a portfolio. |
 | **11 · Off-scale: field shaper** | Not "uses it better" — changes how *other people* use it. Publishes methods others adopt, ships agent products or tooling with real adoption, or their internal practices spread through an organization or community. You don't score an 11 by self-assessment; the field scores you. Judge by adoption of their methods, not follower count — some 11s are publicly prominent, others are invisible platform builders inside companies. Canonical example: Andrej Karpathy. |
 
+**Stakes, not headcount.** "Users" is a proxy. The 9 gate is an operated system where
+FAILURE HAS REAL COST, in any medium:
+- *Software*: external users — internal/company users count fully (see Q8/Q10 defense).
+  Frequency beats headcount: 12 daily users who'd notice an outage by lunch outrank
+  500 registered accounts that log in quarterly. A standing agent living in a work tool
+  qualifies — a Slack bot teammates message, a triage agent working the Jira queue the
+  team would miss by lunch.
+- *Infrastructure*: a production workload with zero human users still qualifies — a backup
+  daemon guarding irreplaceable data, a pipeline moving money. Shrug test: a failure you'd
+  shrug at and rerun is convenience; one you'd feel for weeks is stakes.
+- *Creators / community*: an audience, membership, or revenue stream the pipeline sustains —
+  a channel with a cadence sponsors pay for, a paid community, a newsletter with real
+  readership. No engineering skill required; the loop evidence just looks different:
+  publishing cadence held by agents, analytics feeding content decisions, audience
+  feedback visibly changing the product.
+
+In every medium the LOOP is the discriminator between 8 and 9: merely using AI to make
+things — however sophisticated — is 8; operating an AI-run system with feedback flowing
+back into agent-built updates is 9.
+
 The curve is exponential, with two step changes:
-- **1–9 is learnable practice.** Each level is behavior anyone can adopt by deciding to;
+- **1–8 is learnable practice.** Each level is behavior anyone can adopt by deciding to;
   you do not need to be a professional software engineer — agents supply the SDE work,
   the user supplies delegation judgment and persistence.
-- **9→10 is a distribution problem**, not a skill problem: strangers must depend on what
-  you shipped, which means finding users and doing the operational reliability work.
+- **8→9 is where external reality enters**: something with stakes must exist and be
+  operated, which means finding users (or carrying a real workload) and closing the loop.
+  9→10 is then depth of dependence and scale, not first contact with the world.
 - **10→11 is a power-law outcome** the person doesn't control — the field must adopt
   their methods. You can only do 11-quality public work and let selection operate.
 
@@ -148,13 +206,52 @@ Calibration rules:
 - Evidence beats claims. In interview mode, discount vague answers ("I use it for
   everything") that lack a concrete example.
 
+## Feedback ladder
+
+Two phrasing rules for ALL feedback:
+1. **Evidence first, then ideas.** State what the person is observably doing, as fact —
+   not praise, not deficit. Then offer ideas to try. Evidence makes the score believable;
+   at low levels it keeps the review from reading as an insult.
+2. **Next moves come from ONE band up, never the summit.** A level-2 person told to
+   "build a skill" bounces off; a level-8 person already did it. The right idea is always
+   the behavior of the next band.
+
+Calibration examples (evidence → ideas), one per major band:
+
+**Level 3** — *Evidence:* gets real work product out several times a week, but everything
+makes its final trip by hand — copied from chat into the doc, the email, the file; fixes
+wrong output personally rather than sending it back. *Ideas:* have Claude write the next
+document directly where it lives and revise it there; when output is wrong, say what's
+wrong and make Claude fix it — one steer before taking over; keep the most common type of
+ask in one project so context stops resetting.
+
+**Level 5** — *Evidence:* hands over whole multi-step tasks and iterates to done; project
+context exists; at least one real system connected; corrections live in the moment and get
+retyped across sessions. *Ideas:* any correction typed twice becomes a CLAUDE.md rule this
+week; package one weekly task as a skill; first unattended run — hand over a task and
+judge the result, not the process.
+
+**Level 7** — *Evidence:* custom skills, tuned permissions, some automation; Claude
+sometimes works unwatched; the setup would take a newcomer weeks — but nearly everything
+produced still ends on their own machine. *Ideas:* error-proof systematically — turn the
+last twice-made mistake into a hook or rule so the class can't recur; split one big job
+across parallel subagents; ship one thing to where someone else can touch it.
+
+**Level 8, aiming at 9** — *Evidence:* deep environment, real deployments or a real
+publishing pipeline, distribution started — but no closed loop: usage isn't measured,
+feedback doesn't visibly change the product, nothing would be missed by lunch. *Ideas:*
+pick ONE deployed thing and get a handful of real users (or one real workload) on it;
+open a feedback channel and ship one agent-built update in response to it; add the
+monitoring/recovery the stakes now demand. The next moves ARE the 9 criteria.
+
 ## Output format
 
 Keep it short — one screen:
 
 1. **Score X/10** with a one-line characterization in plain words.
 2. **Dimension profile** — the four dimensions, each with score and ONE line of evidence.
-3. **What's working** — 1–2 lines. Genuine, specific, no flattery.
+3. **What the evidence shows** — 1–2 lines of what they're observably doing, phrased as
+   fact. Specific, no flattery, no deficit-framing.
 4. **Next moves** — exactly 1–3, targeting the weakest dimension, each concrete enough to
    do this week ("write a CLAUDE.md for your main project", "connect your email and have
    Claude triage it once", "take one task you do weekly and turn it into a skill").

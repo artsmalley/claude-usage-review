@@ -11,14 +11,17 @@ The advice is the product; the score is the hook.
 | **1–2 · Search substitute** | AI as a better Google. Ask, read, close the tab. |
 | **3–4 · Copy-paste assistant** | Real drafts and snippets, carried to their destination by hand. Most working professionals are here. |
 | **5–6 · Real delegator** | Hands over multi-step tasks end-to-end. Project context set up. Steers instead of redoing. |
-| **7–8 · Environment builder** | Custom skills, hooks, MCP, automation. Claude sometimes works unattended. |
-| **9–10 · Software producer** | AI is the primary production method. Ships software, agents, or a content operation others depend on. |
+| **7–8 · Environment builder** | Custom skills, hooks, MCP, automation. Claude sometimes works unattended. An 8 has at least one thing off the machine someone else has used. |
+| **9 · Operator** | Runs something with real stakes — users, a production workload, or a paying audience — with a live agentic improvement loop. Someone would notice an outage. |
+| **10 · Production at scale** | Multiple such operations, or one strangers depend on routinely. Reliability work exists because it has to. |
 | **11 · Off-scale: field shaper** | Changes how *other people* use these tools. You don't self-assess an 11 — the field scores you. |
 
 Scoring happens on four dimensions first — **delegation depth**, **environment
 investment**, **autonomy granted**, **output shipped** — then rolls up by judgment,
-not by average. The curve is exponential: 1–9 is learnable practice, 9→10 is a
-distribution problem, 10→11 is a power-law outcome you can't will yourself into.
+not by average. The curve is exponential: 1–8 is learnable practice, 8→9 is where
+external reality enters (stakes plus a closed feedback loop, in any medium — software,
+infrastructure, or a creator/community operation), 9→10 is depth of dependence, and
+10→11 is a power-law outcome you can't will yourself into.
 
 ## Two modes
 
