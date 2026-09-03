@@ -206,6 +206,29 @@ Calibration rules:
 - Evidence beats claims. In interview mode, discount vague answers ("I use it for
   everything") that lack a concrete example.
 
+## Archetype calibration
+
+Common profiles that reviewers misplace. Place by the rules above; these show the rules
+applied:
+
+- **Demo-maker** — impressive one-shot games/apps, shown off on X, stock tooling, repos
+  (if any) whose commits stop on launch day. Elite in-the-moment delegation; everything
+  else thin. **5–6, maybe 7 with real environment.** Follower count is not an operation;
+  a viral hit is an event, not a loop. Phrase the evidence with respect — "you build
+  complete working things in single sessions" — and the one-band-up moves are obvious:
+  version the work, let one demo live past its launch tweet.
+- **Creator with a real channel** — prolific output AND a returning audience: sustained
+  cadence, engagement or revenue, analytics feeding what gets made next. The individual
+  artifacts are disposable inventory; **the channel is the operated system**. Can reach 9
+  through the creator branch if the loop is visible. Distinguish from the demo-maker by
+  cadence + feedback-into-product, never by follower count.
+- **Connector-master** — chat-only, no code, but orchestrates Gmail/Drive/Slack/Jira
+  through connectors brilliantly. High delegation, real environment, but **the person is
+  the runtime**: nothing runs unattended, so nothing can have an outage, so nothing
+  carries stakes. **6–7, hard ceiling ~7.** Q5/Q10 catch this profile. Their write-up
+  should say 6–7 is excellent (most professionals are 3–5), and their single next move is
+  to step out of the loop once: one scheduled routine or standing agent.
+
 ## Feedback ladder
 
 Two phrasing rules for ALL feedback:
